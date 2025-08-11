@@ -1,0 +1,112 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Heimspiele FC Rheineck</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif;margin:0;background:#f2f2f2;color:#222;padding:1rem}
+    header{background:#003366;color:#fff;text-align:center;padding:1rem 0;font-weight:700;font-size:1.4rem;border-radius:10px}
+    .tag-block{margin:1rem 0}
+    .tag-header{background:#003366;color:#fff;padding:.6rem;border-radius:10px}
+    .spiel{background:#fff;margin:.6rem 0;padding:1rem;border-left:4px solid #cc0000;border-radius:10px;box-shadow:0 2px 4px rgba(0,0,0,.05)}
+    .zeit{font-weight:700;margin-bottom:.3rem}
+    .muted{opacity:.8;font-size:.95rem}
+    .error{background:#fff1f1;color:#900;border:1px solid #f3c2c2;padding:.8rem;border-radius:8px}
+    .loading{opacity:.8}
+    footer{margin-top:2rem;text-align:center;font-size:.85rem;color:#666}
+  </style>
+</head>
+<body>
+  <header>📅 Heimspiele FC Rheineck</header>
+  <div id="spielplan" class="loading">Wird geladen…</div>
+  <footer class="muted">Datenquelle: <code>spiele.csv</code> im selben Ordner. Wöchentlich ersetzen genügt.</footer>
+
+  <script>
+    // Deutsche Wochentage
+    const wdays = ["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"];
+
+    // CSV holen mit Cache-Busting und ohne Cache
+    const url = "spiele.csv?v=" + Date.now();
+
+    fetch(url, { cache: "no-store" })
+      .then(r => {
+        if (!r.ok) throw new Error("CSV nicht gefunden (" + r.status + ")");
+        return r.text();
+      })
+      .then(txt => {
+        // Zeilen parsen, Semikolon-getrennt, BOM entfernen
+        txt = txt.replace(/^\uFEFF/, "");
+        const lines = txt.trim().split(/\r?\n/);
+        if (lines.length < 2) throw new Error("CSV hat keine Datenzeilen.");
+        const header = lines[0].split(";").map(s => s.trim());
+        const idx = {
+          Spieldatum: header.indexOf("Spieldatum"),
+          Zeit: header.indexOf("Zeit"),
+          Typ: header.indexOf("Typ"),
+          Heimteam: header.indexOf("Heimteam"),
+          Gastteam: header.indexOf("Gastteam"),
+        };
+        for (const k in idx) if (idx[k] === -1) throw new Error("Spalte fehlt: " + k);
+
+        const rows = lines.slice(1)
+          .map(line => line.split(";"))
+          .filter(cols => cols.filter(Boolean).length > 0)
+          .map(cols => ({
+            datum: cols[idx.Spieldatum]?.trim(),
+            zeit: cols[idx.Zeit]?.trim(),
+            typ: cols[idx.Typ]?.trim(),
+            heim: cols[idx.Heimteam]?.trim(),
+            gast: cols[idx.Gastteam]?.trim(),
+          }))
+          // Sortierung nach Datum (dd.mm.yyyy) und Zeit (HH:MM)
+          .sort((a,b) => {
+            const [da,ma,ya] = a.datum.split(".").map(Number);
+            const [db,mb,yb] = b.datum.split(".").map(Number);
+            const ta = (a.zeit||"00:00").split(":").map(Number);
+            const tb = (b.zeit||"00:00").split(":").map(Number);
+            const A = new Date(ya, ma-1, da, ta[0], ta[1]||0).getTime();
+            const B = new Date(yb, mb-1, db, tb[0], tb[1]||0).getTime();
+            return A - B;
+          });
+
+        // Gruppieren nach Datum
+        const byDate = {};
+        for (const r of rows) {
+          if (!byDate[r.datum]) byDate[r.datum] = [];
+          byDate[r.datum].push(r);
+        }
+
+        // Rendern
+        let html = "";
+        const dates = Object.keys(byDate).sort((a,b) => {
+          const [da,ma,ya] = a.split(".").map(Number);
+          const [db,mb,yb] = b.split(".").map(Number);
+          return new Date(ya,ma-1,da) - new Date(yb,mb-1,db);
+        });
+        for (const d of dates) {
+          const [dd,mm,yy] = d.split(".").map(Number);
+          const jsd = new Date(yy, mm-1, dd);
+          const wtag = wdays[jsd.getDay()];
+          html += `<div class="tag-block">
+            <div class="tag-header">${wtag}, ${d}</div>`;
+          for (const s of byDate[d]) {
+            html += `<div class="spiel">
+              <div class="zeit">🕒 ${s.zeit} Uhr – ${s.typ}</div>
+              <div class="details">${s.heim}<br>gegen<br>${s.gast}</div>
+            </div>`;
+          }
+          html += `</div>`;
+        }
+
+        document.getElementById("spielplan").classList.remove("loading");
+        document.getElementById("spielplan").innerHTML = html || "<div class='error'>Keine Spiele in <code>spiele.csv</code> gefunden.</div>";
+      })
+      .catch(err => {
+        document.getElementById("spielplan").classList.remove("loading");
+        document.getElementById("spielplan").innerHTML = "<div class='error'>Fehler: " + err.message + "</div>";
+      });
+  </script>
+</body>
+</html>
