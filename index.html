@@ -54,26 +54,25 @@
     .card{
       background: var(--card);
       border-radius: 14px;
-      padding: 14px;
+      padding: 12px 14px;
       box-shadow: 0 6px 14px rgba(0,0,0,.06);
       border-left: 5px solid var(--rot);
       transition: transform .08s ease-out, box-shadow .08s ease-out;
+      display: grid;
+      grid-template-rows: auto auto; /* Top + Teams dicht übereinander */
+      row-gap: 4px;
     }
     .card:active{ transform: scale(.995) }
+
     .top{
       display:flex; align-items:flex-start; justify-content:space-between; gap:8px;
-      margin-bottom: 6px;
+      margin: 0; padding: 0;
     }
-    .left{
-      flex: 1 1 auto;
-      min-width: 0;
-    }
-    .right{
-      display:flex; flex-direction:column; align-items:flex-end; gap:6px;
-      margin-left: 8px;
-      flex: 0 0 auto;
-    }
-    .time{ font-weight: 800; font-size: 15px; white-space:nowrap; }
+    .left{ flex: 1 1 auto; min-width: 0; }
+    .right{ display:flex; flex-direction:column; align-items:flex-end; gap:6px; margin-left: 8px; flex: 0 0 auto; }
+
+    .time{ font-weight: 800; font-size: 15px; white-space:nowrap; margin: 0; }
+
     .badge{
       font-size: 12px;
       font-weight:700;
@@ -82,19 +81,34 @@
       background: #e5e7eb;
       color: #111827;
       white-space:nowrap;
+      margin: 0;
     }
     .badge.cup{ background: #fee2e2; color:#991b1b; }
     .badge.meister{ background: #e0e7ff; color:#1e3a8a; }
+
+    .info-btn{
+      appearance: none;
+      border: none;
+      background: transparent;
+      padding: 0;
+      cursor: pointer;
+      line-height: 1;
+    }
+    .info-icon{ width: 22px; height: 22px; display:block; }
+
     .teams{
-      line-height: 1.35;
+      line-height: 1.32;
       font-size: 14px;
+      margin-top: 0; /* enger */
     }
     .vs{
       display:inline-block;
       color: var(--muted);
       font-size: 12px;
-      padding: 2px 6px;
+      padding: 0 6px;
+      transform: translateY(-1px);
     }
+
     .footer{
       margin-top: 18px;
       text-align:center;
@@ -110,20 +124,6 @@
       margin-top: 12px;
     }
     .loading{ opacity:.85 }
-
-    /* Info-Button als SVG */
-    .info-btn{
-      appearance: none;
-      border: none;
-      background: transparent;
-      padding: 0;
-      cursor: pointer;
-      line-height: 1;
-    }
-    .info-icon{
-      width: 22px; height: 22px;
-      display:block;
-    }
 
     /* Modal */
     .modal-backdrop{
@@ -143,20 +143,9 @@
       box-shadow: 0 20px 60px rgba(0,0,0,.2);
       border-top: 6px solid var(--rot);
     }
-    .modal-header{
-      display:flex; align-items:center; justify-content:space-between; gap:10px;
-      margin-bottom: 8px;
-    }
+    .modal-header{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom: 8px; }
     .modal-title{ font-weight: 800; }
-    .modal-close{
-      appearance: none;
-      border: none;
-      background: transparent;
-      font-size: 22px;
-      line-height: 1;
-      cursor: pointer;
-      color: var(--muted);
-    }
+    .modal-close{ appearance: none; border: none; background: transparent; font-size: 22px; line-height: 1; cursor: pointer; color: var(--muted); }
     .modal-body{ white-space: pre-wrap; line-height: 1.45; }
     .show{ display: flex; }
   </style>
@@ -287,7 +276,7 @@
       return html;
     }
 
-    // Modal Steuerung
+    // Modal
     function attachModalHandlers(){
       const backdrop = document.getElementById("modalBackdrop");
       const body = document.getElementById("modalBody");
