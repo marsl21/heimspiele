@@ -61,14 +61,19 @@
     }
     .card:active{ transform: scale(.995) }
     .top{
-      display:flex; align-items:center; justify-content:space-between; gap:8px;
+      display:flex; align-items:flex-start; justify-content:space-between; gap:8px;
       margin-bottom: 6px;
+    }
+    .left{
+      flex: 1 1 auto;
+      min-width: 0;
     }
     .right{
       display:flex; flex-direction:column; align-items:flex-end; gap:6px;
       margin-left: 8px;
+      flex: 0 0 auto;
     }
-    .time{ font-weight: 800; font-size: 15px; }
+    .time{ font-weight: 800; font-size: 15px; white-space:nowrap; }
     .badge{
       font-size: 12px;
       font-weight:700;
@@ -80,19 +85,6 @@
     }
     .badge.cup{ background: #fee2e2; color:#991b1b; }
     .badge.meister{ background: #e0e7ff; color:#1e3a8a; }
-    .info-btn{
-      appearance: none;
-      border: none;
-      background: transparent;
-      color: var(--rot);
-      font-weight: 800;
-      font-size: 18px;
-      line-height: 1;
-      cursor: pointer;
-      padding: 2px;
-      border-radius: 8px;
-    }
-    .info-btn:focus{ outline: 2px solid var(--ring); outline-offset: 2px; }
     .teams{
       line-height: 1.35;
       font-size: 14px;
@@ -118,6 +110,20 @@
       margin-top: 12px;
     }
     .loading{ opacity:.85 }
+
+    /* Info-Button als SVG */
+    .info-btn{
+      appearance: none;
+      border: none;
+      background: transparent;
+      padding: 0;
+      cursor: pointer;
+      line-height: 1;
+    }
+    .info-icon{
+      width: 22px; height: 22px;
+      display:block;
+    }
 
     /* Modal */
     .modal-backdrop{
@@ -173,10 +179,10 @@
 
   <script>
     const WTAG = ["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"];
-    const CSV_URL = "spiele.csv?v=" + Date.now(); // Cache-Busting
+    const CSV_URL = "spiele.csv?v=" + Date.now();
 
     function parseCsv(text){
-      text = text.replace(/^\uFEFF/, ""); // BOM entfernen
+      text = text.replace(/^\uFEFF/, "");
       const lines = text.trim().split(/\r?\n/);
       if (lines.length < 2) return [];
       const header = lines[0].split(";").map(s => s.trim());
@@ -187,9 +193,8 @@
         typ: col("Typ"),
         heim: col("Heimteam"),
         gast: col("Gastteam"),
-        info: col("Informationen") // darf -1 sein (optional)
+        info: (col("Informationen") !== -1 ? col("Informationen") : col("Info"))
       };
-      // Pflichtspalten prüfen
       for (const k of ["datum","zeit","typ","heim","gast"]){
         if (idx[k] < 0) throw new Error("Spalte fehlt: " + k);
       }
@@ -234,6 +239,14 @@
       return "badge";
     }
 
+    function svgInfo(){
+      return `<svg class="info-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="12" r="11" fill="none" stroke="var(--rot)" stroke-width="2"/>
+        <line x1="12" y1="10" x2="12" y2="17" stroke="var(--rot)" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="12" cy="7" r="1.6" fill="var(--rot)"/>
+      </svg>`;
+    }
+
     function render(rows){
       if (!rows.length){
         return '<div class="error">Keine Spiele in <code>spiele.csv</code> gefunden.</div>';
@@ -256,10 +269,10 @@
           const hasInfo = s.info && s.info.length > 0;
           html += `<article class="card" aria-label="Spiel ${s.heim} gegen ${s.gast} am ${d} um ${s.zeit}">
             <div class="top">
-              <div class="time">🕒 ${s.zeit} Uhr</div>
+              <div class="left"><div class="time">🕒 ${s.zeit} Uhr</div></div>
               <div class="right">
                 <span class="${badgeClass(s.typ)}">${s.typ || "Spiel"}</span>
-                ${hasInfo ? `<button class="info-btn" title="Info anzeigen" data-info="${s.info.replace(/"/g,'&quot;')}">🛈</button>` : ``}
+                ${hasInfo ? `<button class="info-btn" title="Info anzeigen" data-info="${s.info.replace(/"/g,'&quot;')}">${svgInfo()}</button>` : ``}
               </div>
             </div>
             <div class="teams">
@@ -275,7 +288,6 @@
     }
 
     // Modal Steuerung
-    const $backdrop = document.createElement("div");
     function attachModalHandlers(){
       const backdrop = document.getElementById("modalBackdrop");
       const body = document.getElementById("modalBody");
