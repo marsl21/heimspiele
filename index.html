@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -6,106 +5,139 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Heimspiele FC Rheineck</title>
   <style>
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif;margin:0;background:#f2f2f2;color:#222;padding:1rem}
-    header{background:#003366;color:#fff;text-align:center;padding:1rem 0;font-weight:700;font-size:1.4rem;border-radius:10px}
-    .tag-block{margin:1rem 0}
-    .tag-header{background:#003366;color:#fff;padding:.6rem;border-radius:10px}
-    .spiel{background:#fff;margin:.6rem 0;padding:1rem;border-left:4px solid #cc0000;border-radius:10px;box-shadow:0 2px 4px rgba(0,0,0,.05)}
-    .zeit{font-weight:700;margin-bottom:.3rem}
-    .muted{opacity:.8;font-size:.95rem}
-    .error{background:#fff1f1;color:#900;border:1px solid #f3c2c2;padding:.8rem;border-radius:8px}
-    .loading{opacity:.8}
-    footer{margin-top:2rem;text-align:center;font-size:.85rem;color:#666}
+    :root{ --blau:#003366; --rot:#cc0000; --bg:#f4f6f8; --card:#ffffff; --text:#1f2937; --muted:#6b7280; --ring: rgba(0,51,102,.15); }
+    *{box-sizing:border-box} html,body{margin:0;padding:0}
+    body{font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif;color: var(--text);background: var(--bg);padding: 16px;}
+    header{position: sticky; top:0; z-index: 10;background: var(--blau);color: #fff;padding: 14px 16px;border-radius: 14px;box-shadow: 0 6px 16px var(--ring);text-align:center;font-weight: 700;letter-spacing: .2px;}
+    .day{margin: 18px 0;}
+    .day-title{background: var(--blau);color: #fff;padding: 8px 12px;border-radius: 10px;font-weight: 600;box-shadow: 0 4px 12px var(--ring);}
+    .grid{display: grid;grid-template-columns: 1fr;gap: 12px;margin-top: 10px;}
+    @media (min-width: 480px){ .grid{ grid-template-columns: 1fr 1fr; } }
+    .card{background: var(--card);border-radius: 14px;padding: 14px;box-shadow: 0 6px 14px rgba(0,0,0,.06);border-left: 5px solid var(--rot);transition: transform .08s ease-out, box-shadow .08s ease-out;}
+    .card:active{ transform: scale(.995) }
+    .top{display:flex; align-items:center; justify-content:space-between; gap:8px;margin-bottom: 6px;}
+    .time{font-weight: 800;font-size: 15px;}
+    .badge{font-size: 12px;font-weight:700;padding: 4px 8px;border-radius: 999px;background: #e5e7eb;color: #111827;white-space:nowrap;}
+    .badge.cup{ background: #fee2e2; color:#991b1b; }
+    .badge.meister{ background: #e0e7ff; color:#1e3a8a; }
+    .teams{line-height: 1.35;font-size: 14px;}
+    .vs{display:inline-block;color: var(--muted);font-size: 12px;padding: 2px 6px;}
+    .footer{margin-top: 18px;text-align:center;color: var(--muted);font-size: 12px;}
+    .error{background: #fff1f1;color:#7f1d1d;border:1px solid #fecaca;padding: 10px 12px;border-radius: 10px;margin-top: 12px;}
+    .loading{ opacity:.85 }
   </style>
 </head>
 <body>
   <header>📅 Heimspiele FC Rheineck</header>
   <div id="spielplan" class="loading">Wird geladen…</div>
-  <footer class="muted">Datenquelle: <code>spiele.csv</code> im selben Ordner. Wöchentlich ersetzen genügt.</footer>
+  <div class="footer">Datenquelle: <code>spiele.csv</code> im selben Ordner. Woechentlich ersetzen genuegt.</div>
 
   <script>
-    // Deutsche Wochentage
-    const wdays = ["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"];
+    const WTAG = ["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"];
+    const CSV_URL = "spiele.csv?v=" + Date.now(); // Cache-Busting
 
-    // CSV holen mit Cache-Busting und ohne Cache
-    const url = "spiele.csv?v=" + Date.now();
+    function parseCsv(text){
+      text = text.replace(/^\uFEFF/, ""); // BOM entfernen
+      const lines = text.trim().split(/\r?\n/);
+      if (lines.length < 2) return [];
+      const header = lines[0].split(";").map(s => s.trim());
+      const col = k => header.indexOf(k);
+      const idx = {
+        datum: col("Spieldatum"),
+        zeit: col("Zeit"),
+        typ: col("Typ"),
+        heim: col("Heimteam"),
+        gast: col("Gastteam")
+      };
+      for (const k in idx){
+        if (idx[k] < 0) throw new Error("Spalte fehlt: " + k);
+      }
+      return lines.slice(1)
+        .map(l => l.split(";"))
+        .filter(arr => arr.some(v => v && v.trim() !== ""))
+        .map(a => ({
+          datum: (a[idx.datum]||"").trim(),
+          zeit: (a[idx.zeit]||"").trim(),
+          typ: (a[idx.typ]||"").trim(),
+          heim: (a[idx.heim]||"").trim(),
+          gast: (a[idx.gast]||"").trim()
+        }));
+    }
 
-    fetch(url, { cache: "no-store" })
-      .then(r => {
-        if (!r.ok) throw new Error("CSV nicht gefunden (" + r.status + ")");
-        return r.text();
-      })
-      .then(txt => {
-        // Zeilen parsen, Semikolon-getrennt, BOM entfernen
-        txt = txt.replace(/^\uFEFF/, "");
-        const lines = txt.trim().split(/\r?\n/);
-        if (lines.length < 2) throw new Error("CSV hat keine Datenzeilen.");
-        const header = lines[0].split(";").map(s => s.trim());
-        const idx = {
-          Spieldatum: header.indexOf("Spieldatum"),
-          Zeit: header.indexOf("Zeit"),
-          Typ: header.indexOf("Typ"),
-          Heimteam: header.indexOf("Heimteam"),
-          Gastteam: header.indexOf("Gastteam"),
-        };
-        for (const k in idx) if (idx[k] === -1) throw new Error("Spalte fehlt: " + k);
+    function sortByDateTime(rows){
+      return rows.slice().sort((a,b)=>{
+        const [da,ma,ya] = a.datum.split(".").map(Number);
+        const [db,mb,yb] = b.datum.split(".").map(Number);
+        const [ha,na] = (a.zeit||"00:00").split(":").map(Number);
+        const [hb,nb] = (b.zeit||"00:00").split(":").map(Number);
+        const A = new Date(ya,ma-1,da,ha||0,na||0).getTime();
+        const B = new Date(yb,mb-1,db,hb||0,nb||0).getTime();
+        return A - B;
+      });
+    }
 
-        const rows = lines.slice(1)
-          .map(line => line.split(";"))
-          .filter(cols => cols.filter(Boolean).length > 0)
-          .map(cols => ({
-            datum: cols[idx.Spieldatum]?.trim(),
-            zeit: cols[idx.Zeit]?.trim(),
-            typ: cols[idx.Typ]?.trim(),
-            heim: cols[idx.Heimteam]?.trim(),
-            gast: cols[idx.Gastteam]?.trim(),
-          }))
-          // Sortierung nach Datum (dd.mm.yyyy) und Zeit (HH:MM)
-          .sort((a,b) => {
-            const [da,ma,ya] = a.datum.split(".").map(Number);
-            const [db,mb,yb] = b.datum.split(".").map(Number);
-            const ta = (a.zeit||"00:00").split(":").map(Number);
-            const tb = (b.zeit||"00:00").split(":").map(Number);
-            const A = new Date(ya, ma-1, da, ta[0], ta[1]||0).getTime();
-            const B = new Date(yb, mb-1, db, tb[0], tb[1]||0).getTime();
-            return A - B;
-          });
+    function groupByDate(rows){
+      const map = {};
+      for (const r of rows){
+        if (!map[r.datum]) map[r.datum] = [];
+        map[r.datum].push(r);
+      }
+      return map;
+    }
 
-        // Gruppieren nach Datum
-        const byDate = {};
-        for (const r of rows) {
-          if (!byDate[r.datum]) byDate[r.datum] = [];
-          byDate[r.datum].push(r);
+    function badgeClass(typ){
+      const t = (typ||"").toLowerCase();
+      if (t.includes("cup")) return "badge cup";
+      if (t.includes("meister")) return "badge meister";
+      return "badge";
+    }
+
+    function render(rows){
+      if (!rows.length){
+        return '<div class="error">Keine Spiele in <code>spiele.csv</code> gefunden.</div>';
+      }
+      const sorted = sortByDateTime(rows);
+      const byDate = groupByDate(sorted);
+      const dates = Object.keys(byDate).sort((a,b)=>{
+        const [da,ma,ya] = a.split(".").map(Number);
+        const [db,mb,yb] = b.split(".").map(Number);
+        return new Date(ya,ma-1,da)-new Date(yb,mb-1,db);
+      });
+      let html = "";
+      for (const d of dates){
+        const [dd,mm,yy] = d.split(".").map(Number);
+        const w = WTAG[new Date(yy,mm-1,dd).getDay()];
+        html += `<section class="day">
+          <div class="day-title">${w}, ${d}</div>
+          <div class="grid">`;
+        for (const s of byDate[d]){
+          html += `<article class="card" aria-label="Spiel ${s.heim} gegen ${s.gast} am ${d} um ${s.zeit}">
+            <div class="top">
+              <div class="time">🕒 ${s.zeit} Uhr</div>
+              <span class="${badgeClass(s.typ)}">${s.typ || "Spiel"}</span>
+            </div>
+            <div class="teams">
+              <div>${s.heim}</div>
+              <span class="vs">gegen</span>
+              <div>${s.gast}</div>
+            </div>
+          </article>`;
         }
+        html += `</div></section>`;
+      }
+      return html;
+    }
 
-        // Rendern
-        let html = "";
-        const dates = Object.keys(byDate).sort((a,b) => {
-          const [da,ma,ya] = a.split(".").map(Number);
-          const [db,mb,yb] = b.split(".").map(Number);
-          return new Date(ya,ma-1,da) - new Date(yb,mb-1,db);
-        });
-        for (const d of dates) {
-          const [dd,mm,yy] = d.split(".").map(Number);
-          const jsd = new Date(yy, mm-1, dd);
-          const wtag = wdays[jsd.getDay()];
-          html += `<div class="tag-block">
-            <div class="tag-header">${wtag}, ${d}</div>`;
-          for (const s of byDate[d]) {
-            html += `<div class="spiel">
-              <div class="zeit">🕒 ${s.zeit} Uhr – ${s.typ}</div>
-              <div class="details">${s.heim}<br>gegen<br>${s.gast}</div>
-            </div>`;
-          }
-          html += `</div>`;
-        }
-
+    fetch(CSV_URL, {cache:"no-store"})
+      .then(r => { if(!r.ok) throw new Error("CSV nicht gefunden ("+r.status+")"); return r.text(); })
+      .then(txt => { 
+        const rows = parseCsv(txt);
         document.getElementById("spielplan").classList.remove("loading");
-        document.getElementById("spielplan").innerHTML = html || "<div class='error'>Keine Spiele in <code>spiele.csv</code> gefunden.</div>";
+        document.getElementById("spielplan").innerHTML = render(rows);
       })
       .catch(err => {
         document.getElementById("spielplan").classList.remove("loading");
-        document.getElementById("spielplan").innerHTML = "<div class='error'>Fehler: " + err.message + "</div>";
+        document.getElementById("spielplan").innerHTML = '<div class="error">Fehler beim Laden: '+err.message+'</div>';
       });
   </script>
 </body>
