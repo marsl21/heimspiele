@@ -5,32 +5,171 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Heimspiele FC Rheineck</title>
   <style>
-    :root{ --blau:#003366; --rot:#cc0000; --bg:#f4f6f8; --card:#ffffff; --text:#1f2937; --muted:#6b7280; --ring: rgba(0,51,102,.15); }
-    *{box-sizing:border-box} html,body{margin:0;padding:0}
-    body{font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif;color: var(--text);background: var(--bg);padding: 16px;}
-    header{position: sticky; top:0; z-index: 10;background: var(--blau);color: #fff;padding: 14px 16px;border-radius: 14px;box-shadow: 0 6px 16px var(--ring);text-align:center;font-weight: 700;letter-spacing: .2px;}
-    .day{margin: 18px 0;}
-    .day-title{background: var(--blau);color: #fff;padding: 8px 12px;border-radius: 10px;font-weight: 600;box-shadow: 0 4px 12px var(--ring);}
-    .grid{display: grid;grid-template-columns: 1fr;gap: 12px;margin-top: 10px;}
-    @media (min-width: 480px){ .grid{ grid-template-columns: 1fr 1fr; } }
-    .card{background: var(--card);border-radius: 14px;padding: 14px;box-shadow: 0 6px 14px rgba(0,0,0,.06);border-left: 5px solid var(--rot);transition: transform .08s ease-out, box-shadow .08s ease-out;}
+    :root{
+      --blau:#003366;
+      --rot:#cc0000;
+      --bg:#f4f6f8;
+      --card:#ffffff;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --ring: rgba(0,51,102,.15);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0}
+    body{
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      padding: 16px;
+    }
+    header{
+      position: sticky; top:0; z-index: 10;
+      background: var(--blau);
+      color: #fff;
+      padding: 14px 16px;
+      border-radius: 14px;
+      box-shadow: 0 6px 16px var(--ring);
+      text-align:center;
+      font-weight: 700;
+      letter-spacing: .2px;
+    }
+    .day{ margin: 18px 0; }
+    .day-title{
+      background: var(--blau);
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-weight: 600;
+      box-shadow: 0 4px 12px var(--ring);
+    }
+    .grid{
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+    @media (min-width: 480px){
+      .grid{ grid-template-columns: 1fr 1fr; }
+    }
+    .card{
+      background: var(--card);
+      border-radius: 14px;
+      padding: 14px;
+      box-shadow: 0 6px 14px rgba(0,0,0,.06);
+      border-left: 5px solid var(--rot);
+      transition: transform .08s ease-out, box-shadow .08s ease-out;
+    }
     .card:active{ transform: scale(.995) }
-    .top{display:flex; align-items:center; justify-content:space-between; gap:8px;margin-bottom: 6px;}
-    .time{font-weight: 800;font-size: 15px;}
-    .badge{font-size: 12px;font-weight:700;padding: 4px 8px;border-radius: 999px;background: #e5e7eb;color: #111827;white-space:nowrap;}
+    .top{
+      display:flex; align-items:center; justify-content:space-between; gap:8px;
+      margin-bottom: 6px;
+    }
+    .right{
+      display:flex; flex-direction:column; align-items:flex-end; gap:6px;
+      margin-left: 8px;
+    }
+    .time{ font-weight: 800; font-size: 15px; }
+    .badge{
+      font-size: 12px;
+      font-weight:700;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      color: #111827;
+      white-space:nowrap;
+    }
     .badge.cup{ background: #fee2e2; color:#991b1b; }
     .badge.meister{ background: #e0e7ff; color:#1e3a8a; }
-    .teams{line-height: 1.35;font-size: 14px;}
-    .vs{display:inline-block;color: var(--muted);font-size: 12px;padding: 2px 6px;}
-    .footer{margin-top: 18px;text-align:center;color: var(--muted);font-size: 12px;}
-    .error{background: #fff1f1;color:#7f1d1d;border:1px solid #fecaca;padding: 10px 12px;border-radius: 10px;margin-top: 12px;}
+    .info-btn{
+      appearance: none;
+      border: none;
+      background: transparent;
+      color: var(--rot);
+      font-weight: 800;
+      font-size: 18px;
+      line-height: 1;
+      cursor: pointer;
+      padding: 2px;
+      border-radius: 8px;
+    }
+    .info-btn:focus{ outline: 2px solid var(--ring); outline-offset: 2px; }
+    .teams{
+      line-height: 1.35;
+      font-size: 14px;
+    }
+    .vs{
+      display:inline-block;
+      color: var(--muted);
+      font-size: 12px;
+      padding: 2px 6px;
+    }
+    .footer{
+      margin-top: 18px;
+      text-align:center;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .error{
+      background: #fff1f1;
+      color:#7f1d1d;
+      border:1px solid #fecaca;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin-top: 12px;
+    }
     .loading{ opacity:.85 }
+
+    /* Modal */
+    .modal-backdrop{
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.35);
+      display: none;
+      align-items: center; justify-content: center;
+      padding: 16px;
+      z-index: 50;
+    }
+    .modal{
+      background: #fff;
+      border-radius: 14px;
+      padding: 16px;
+      width: 100%;
+      max-width: 520px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.2);
+      border-top: 6px solid var(--rot);
+    }
+    .modal-header{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      margin-bottom: 8px;
+    }
+    .modal-title{ font-weight: 800; }
+    .modal-close{
+      appearance: none;
+      border: none;
+      background: transparent;
+      font-size: 22px;
+      line-height: 1;
+      cursor: pointer;
+      color: var(--muted);
+    }
+    .modal-body{ white-space: pre-wrap; line-height: 1.45; }
+    .show{ display: flex; }
   </style>
 </head>
 <body>
   <header>📅 Heimspiele FC Rheineck</header>
   <div id="spielplan" class="loading">Wird geladen…</div>
-  <div class="footer">Datenquelle: <code>spiele.csv</code> im selben Ordner. Woechentlich ersetzen genuegt.</div>
+  <div class="footer">Datenquelle: <code>spiele.csv</code> (Spalte <code>Informationen</code> optional).</div>
+
+  <!-- Modal -->
+  <div id="modalBackdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal">
+      <div class="modal-header">
+        <div id="modalTitle" class="modal-title">Information</div>
+        <button class="modal-close" aria-label="Schliessen" id="modalClose">&times;</button>
+      </div>
+      <div id="modalBody" class="modal-body"></div>
+    </div>
+  </div>
 
   <script>
     const WTAG = ["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"];
@@ -47,9 +186,11 @@
         zeit: col("Zeit"),
         typ: col("Typ"),
         heim: col("Heimteam"),
-        gast: col("Gastteam")
+        gast: col("Gastteam"),
+        info: col("Informationen") // darf -1 sein (optional)
       };
-      for (const k in idx){
+      // Pflichtspalten prüfen
+      for (const k of ["datum","zeit","typ","heim","gast"]){
         if (idx[k] < 0) throw new Error("Spalte fehlt: " + k);
       }
       return lines.slice(1)
@@ -60,7 +201,8 @@
           zeit: (a[idx.zeit]||"").trim(),
           typ: (a[idx.typ]||"").trim(),
           heim: (a[idx.heim]||"").trim(),
-          gast: (a[idx.gast]||"").trim()
+          gast: (a[idx.gast]||"").trim(),
+          info: idx.info >= 0 ? (a[idx.info]||"").trim() : ""
         }));
     }
 
@@ -111,10 +253,14 @@
           <div class="day-title">${w}, ${d}</div>
           <div class="grid">`;
         for (const s of byDate[d]){
+          const hasInfo = s.info && s.info.length > 0;
           html += `<article class="card" aria-label="Spiel ${s.heim} gegen ${s.gast} am ${d} um ${s.zeit}">
             <div class="top">
               <div class="time">🕒 ${s.zeit} Uhr</div>
-              <span class="${badgeClass(s.typ)}">${s.typ || "Spiel"}</span>
+              <div class="right">
+                <span class="${badgeClass(s.typ)}">${s.typ || "Spiel"}</span>
+                ${hasInfo ? `<button class="info-btn" title="Info anzeigen" data-info="${s.info.replace(/"/g,'&quot;')}">🛈</button>` : ``}
+              </div>
             </div>
             <div class="teams">
               <div>${s.heim}</div>
@@ -128,12 +274,37 @@
       return html;
     }
 
+    // Modal Steuerung
+    const $backdrop = document.createElement("div");
+    function attachModalHandlers(){
+      const backdrop = document.getElementById("modalBackdrop");
+      const body = document.getElementById("modalBody");
+      const btnClose = document.getElementById("modalClose");
+
+      document.body.addEventListener("click", (e) => {
+        const btn = e.target.closest(".info-btn");
+        if (btn){
+          const txt = btn.getAttribute("data-info") || "";
+          body.textContent = txt;
+          backdrop.classList.add("show");
+        }
+      });
+      btnClose.addEventListener("click", () => backdrop.classList.remove("show"));
+      backdrop.addEventListener("click", (e) => {
+        if (e.target === backdrop) backdrop.classList.remove("show");
+      });
+      document.addEventListener("keydown", (e)=>{
+        if (e.key === "Escape") backdrop.classList.remove("show");
+      });
+    }
+
     fetch(CSV_URL, {cache:"no-store"})
       .then(r => { if(!r.ok) throw new Error("CSV nicht gefunden ("+r.status+")"); return r.text(); })
       .then(txt => { 
         const rows = parseCsv(txt);
         document.getElementById("spielplan").classList.remove("loading");
         document.getElementById("spielplan").innerHTML = render(rows);
+        attachModalHandlers();
       })
       .catch(err => {
         document.getElementById("spielplan").classList.remove("loading");
