@@ -52,26 +52,25 @@
       .grid{ grid-template-columns: 1fr 1fr; }
     }
     .card{
+      position: relative; /* wichtig für absolute rechte Spalte */
       background: var(--card);
       border-radius: 14px;
-      padding: 12px 14px;
+      padding: 12px 64px 12px 14px; /* rechts Platz für Badge+Info schaffen */
       box-shadow: 0 6px 14px rgba(0,0,0,.06);
       border-left: 5px solid var(--rot);
       transition: transform .08s ease-out, box-shadow .08s ease-out;
-      display: grid;
-      grid-template-rows: auto auto; /* Top + Teams dicht übereinander */
-      row-gap: 4px;
     }
     .card:active{ transform: scale(.995) }
 
-    .top{
-      display:flex; align-items:flex-start; justify-content:space-between; gap:8px;
-      margin: 0; padding: 0;
-    }
-    .left{ flex: 1 1 auto; min-width: 0; }
-    .right{ display:flex; flex-direction:column; align-items:flex-end; gap:6px; margin-left: 8px; flex: 0 0 auto; }
-
+    .top{ margin: 0 0 4px 0; padding: 0; }
     .time{ font-weight: 800; font-size: 15px; white-space:nowrap; margin: 0; }
+
+    /* Rechts oben fixiert: beeinflusst nicht die Höhe der Uhrzeit */
+    .right{
+      position: absolute;
+      top: 10px; right: 12px;
+      display: flex; flex-direction: column; align-items: flex-end; gap: 6px;
+    }
 
     .badge{
       font-size: 12px;
@@ -99,7 +98,7 @@
     .teams{
       line-height: 1.32;
       font-size: 14px;
-      margin-top: 0; /* enger */
+      margin: 0; /* direkt unter Zeit */
     }
     .vs{
       display:inline-block;
@@ -258,11 +257,11 @@
           const hasInfo = s.info && s.info.length > 0;
           html += `<article class="card" aria-label="Spiel ${s.heim} gegen ${s.gast} am ${d} um ${s.zeit}">
             <div class="top">
-              <div class="left"><div class="time">🕒 ${s.zeit} Uhr</div></div>
-              <div class="right">
-                <span class="${badgeClass(s.typ)}">${s.typ || "Spiel"}</span>
-                ${hasInfo ? `<button class="info-btn" title="Info anzeigen" data-info="${s.info.replace(/"/g,'&quot;')}">${svgInfo()}</button>` : ``}
-              </div>
+              <div class="time">🕒 ${s.zeit} Uhr</div>
+            </div>
+            <div class="right">
+              <span class="${badgeClass(s.typ)}">${s.typ || "Spiel"}</span>
+              ${hasInfo ? `<button class="info-btn" title="Info anzeigen" data-info="${s.info.replace(/"/g,'&quot;')}">${svgInfo()}</button>` : ``}
             </div>
             <div class="teams">
               <div>${s.heim}</div>
