@@ -22,26 +22,31 @@
       background: var(--bg);
       padding: 16px;
     }
+
+    /* Header: moderner Verlauf + stärkerer Schatten */
     header{
       position: sticky; top:0; z-index: 10;
-      background: var(--blau);
+      background: linear-gradient(135deg, #00264d, #004080);
       color: #fff;
-      padding: 14px 16px;
-      border-radius: 14px;
-      box-shadow: 0 6px 16px var(--ring);
+      padding: 16px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,.15);
       text-align:center;
-      font-weight: 700;
-      letter-spacing: .2px;
+      font-weight: 800;
+      font-size: 18px;
+      letter-spacing: .3px;
     }
+
     .day{ margin: 18px 0; }
     .day-title{
       background: var(--blau);
       color: #fff;
-      padding: 8px 12px;
-      border-radius: 10px;
-      font-weight: 600;
-      box-shadow: 0 4px 12px var(--ring);
+      padding: 9px 12px;
+      border-radius: 12px;
+      font-weight: 700;
+      box-shadow: 0 6px 16px var(--ring);
     }
+
     .grid{
       display: grid;
       grid-template-columns: 1fr;
@@ -51,36 +56,65 @@
     @media (min-width: 480px){
       .grid{ grid-template-columns: 1fr 1fr; }
     }
+
+    /* Card: moderner + Hover + dezentes Emoji */
     .card{
-      position: relative; /* wichtig für absolute rechte Spalte */
+      position: relative;
       background: var(--card);
-      border-radius: 14px;
-      padding: 12px 64px 12px 14px; /* rechts Platz für Badge+Info schaffen */
-      box-shadow: 0 6px 14px rgba(0,0,0,.06);
-      border-left: 5px solid var(--rot);
-      transition: transform .08s ease-out, box-shadow .08s ease-out;
+      border-radius: 18px;
+      padding: 16px 70px 16px 16px;
+      box-shadow: 0 8px 20px rgba(0,0,0,.08);
+      border-left: 6px solid var(--rot);
+      transition: transform .15s ease, box-shadow .15s ease;
+      overflow: hidden;
     }
-    .card:active{ transform: scale(.995) }
+    .card:hover{
+      transform: translateY(-3px);
+      box-shadow: 0 14px 30px rgba(0,0,0,.15);
+    }
+    .card:active{ transform: translateY(-1px) scale(.995); }
+
+    .card::after{
+      content:"⚽";
+      position:absolute;
+      bottom:10px;
+      right:15px;
+      font-size:40px;
+      opacity:.06;
+      pointer-events:none;
+    }
 
     .top{ margin: 0 0 4px 0; padding: 0; }
-    .time{ font-weight: 800; font-size: 15px; white-space:nowrap; margin: 0; }
 
-    /* Rechts oben fixiert: beeinflusst nicht die Höhe der Uhrzeit */
+    /* Zeit: klarer Fokus */
+    .time{
+      font-weight: 900;
+      font-size: 16px;
+      color: var(--blau);
+      white-space:nowrap;
+      margin: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Rechts oben fixiert */
     .right{
       position: absolute;
-      top: 10px; right: 12px;
-      display: flex; flex-direction: column; align-items: flex-end; gap: 6px;
+      top: 12px; right: 12px;
+      display: flex; flex-direction: column; align-items: flex-end; gap: 8px;
     }
 
     .badge{
       font-size: 12px;
-      font-weight:700;
-      padding: 4px 8px;
+      font-weight: 800;
+      padding: 5px 9px;
       border-radius: 999px;
       background: #e5e7eb;
       color: #111827;
       white-space:nowrap;
       margin: 0;
+      box-shadow: 0 6px 14px rgba(0,0,0,.06);
     }
     .badge.cup{ background: #fee2e2; color:#991b1b; }
     .badge.meister{ background: #e0e7ff; color:#1e3a8a; }
@@ -92,20 +126,22 @@
       padding: 0;
       cursor: pointer;
       line-height: 1;
+      transform: translateY(1px);
     }
+    .info-btn:hover{ transform: translateY(0px) scale(1.03); }
     .info-icon{ width: 22px; height: 22px; display:block; }
 
+    /* Teams: klarer Aufbau, "gegen" als eigene Zeile */
     .teams{
-      line-height: 1.32;
-      font-size: 14px;
-      margin: 0; /* direkt unter Zeit */
+      line-height: 1.4;
+      font-size: 15px;
+      margin-top: 8px;
     }
     .vs{
-      display:inline-block;
+      display:block;
       color: var(--muted);
       font-size: 12px;
-      padding: 0 6px;
-      transform: translateY(-1px);
+      margin: 4px 0;
     }
 
     .footer{
@@ -119,7 +155,7 @@
       color:#7f1d1d;
       border:1px solid #fecaca;
       padding: 10px 12px;
-      border-radius: 10px;
+      border-radius: 12px;
       margin-top: 12px;
     }
     .loading{ opacity:.85 }
@@ -135,7 +171,7 @@
     }
     .modal{
       background: #fff;
-      border-radius: 14px;
+      border-radius: 16px;
       padding: 16px;
       width: 100%;
       max-width: 520px;
@@ -143,7 +179,7 @@
       border-top: 6px solid var(--rot);
     }
     .modal-header{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom: 8px; }
-    .modal-title{ font-weight: 800; }
+    .modal-title{ font-weight: 900; }
     .modal-close{ appearance: none; border: none; background: transparent; font-size: 22px; line-height: 1; cursor: pointer; color: var(--muted); }
     .modal-body{ white-space: pre-wrap; line-height: 1.45; }
     .show{ display: flex; }
@@ -170,11 +206,14 @@
     const CSV_URL = "spiele.csv?v=" + Date.now();
 
     function parseCsv(text){
+      // BOM weg, falls vorhanden
       text = text.replace(/^\uFEFF/, "");
       const lines = text.trim().split(/\r?\n/);
       if (lines.length < 2) return [];
+
       const header = lines[0].split(";").map(s => s.trim());
       const col = k => header.indexOf(k);
+
       const idx = {
         datum: col("Spieldatum"),
         zeit: col("Zeit"),
@@ -183,9 +222,11 @@
         gast: col("Gastteam"),
         info: (col("Informationen") !== -1 ? col("Informationen") : col("Info"))
       };
+
       for (const k of ["datum","zeit","typ","heim","gast"]){
         if (idx[k] < 0) throw new Error("Spalte fehlt: " + k);
       }
+
       return lines.slice(1)
         .map(l => l.split(";"))
         .filter(arr => arr.some(v => v && v.trim() !== ""))
@@ -239,37 +280,46 @@
       if (!rows.length){
         return '<div class="error">Keine Spiele in <code>spiele.csv</code> gefunden.</div>';
       }
+
       const sorted = sortByDateTime(rows);
       const byDate = groupByDate(sorted);
+
       const dates = Object.keys(byDate).sort((a,b)=>{
         const [da,ma,ya] = a.split(".").map(Number);
         const [db,mb,yb] = b.split(".").map(Number);
-        return new Date(ya,ma-1,da)-new Date(yb,mb-1,db);
+        return new Date(ya,ma-1,da) - new Date(yb,mb-1,db);
       });
+
       let html = "";
       for (const d of dates){
         const [dd,mm,yy] = d.split(".").map(Number);
         const w = WTAG[new Date(yy,mm-1,dd).getDay()];
+
         html += `<section class="day">
           <div class="day-title">${w}, ${d}</div>
           <div class="grid">`;
+
         for (const s of byDate[d]){
           const hasInfo = s.info && s.info.length > 0;
+
           html += `<article class="card" aria-label="Spiel ${s.heim} gegen ${s.gast} am ${d} um ${s.zeit}">
             <div class="top">
               <div class="time">🕒 ${s.zeit} Uhr</div>
             </div>
+
             <div class="right">
               <span class="${badgeClass(s.typ)}">${s.typ || "Spiel"}</span>
               ${hasInfo ? `<button class="info-btn" title="Info anzeigen" data-info="${s.info.replace(/"/g,'&quot;')}">${svgInfo()}</button>` : ``}
             </div>
+
             <div class="teams">
-              <div>${s.heim}</div>
+              <div><strong>${s.heim}</strong></div>
               <span class="vs">gegen</span>
-              <div>${s.gast}</div>
+              <div><strong>${s.gast}</strong></div>
             </div>
           </article>`;
         }
+
         html += `</div></section>`;
       }
       return html;
@@ -289,6 +339,7 @@
           backdrop.classList.add("show");
         }
       });
+
       btnClose.addEventListener("click", () => backdrop.classList.remove("show"));
       backdrop.addEventListener("click", (e) => {
         if (e.target === backdrop) backdrop.classList.remove("show");
@@ -300,7 +351,7 @@
 
     fetch(CSV_URL, {cache:"no-store"})
       .then(r => { if(!r.ok) throw new Error("CSV nicht gefunden ("+r.status+")"); return r.text(); })
-      .then(txt => { 
+      .then(txt => {
         const rows = parseCsv(txt);
         document.getElementById("spielplan").classList.remove("loading");
         document.getElementById("spielplan").innerHTML = render(rows);
