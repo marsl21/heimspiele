@@ -7,197 +7,472 @@
   <style>
     :root{
       --blau:#003366;
+      --blau-2:#0b4d8a;
       --rot:#cc0000;
-      --bg:#f4f6f8;
-      --card:#ffffff;
-      --text:#1f2937;
-      --muted:#6b7280;
-      --ring: rgba(0,51,102,.15);
+      --rot-2:#e11d48;
 
-      /* Team-Tints (sehr hell) */
-     --tint-fcr1: rgba(59,130,246,.18);   /* neu: dunkleres Hellblau */
-     --tint-fcr2: rgba(37,99,235,.28);    /* neu: nochmals dunkleres Blau */
-     --tint-damen: rgba(239,68,68,.18);   /* neu: leicht stärkeres Rot */
-     --tint-50p: rgba(107,114,128,.22);   /* neu: etwas dunkleres Grau */
+      --bg:
+        radial-gradient(circle at top left, rgba(0,51,102,.10), transparent 28%),
+        radial-gradient(circle at top right, rgba(204,0,0,.08), transparent 24%),
+        linear-gradient(180deg, #eef3f8 0%, #f7f9fc 100%);
+
+      --card: rgba(255,255,255,.92);
+      --card-solid:#ffffff;
+      --text:#17212f;
+      --muted:#667085;
+      --line:#d9e2ec;
+      --ring: rgba(0,51,102,.12);
+      --shadow: 0 10px 30px rgba(15,23,42,.08);
+      --shadow-hover: 0 18px 40px rgba(15,23,42,.14);
+
+      /* Team-Tints */
+      --tint-fcr1: rgba(59,130,246,.15);
+      --tint-fcr2: rgba(37,99,235,.24);
+      --tint-damen: rgba(239,68,68,.14);
+      --tint-50p: rgba(107,114,128,.18);
     }
+
     *{box-sizing:border-box}
     html,body{margin:0;padding:0}
+
     body{
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif;
       color: var(--text);
       background: var(--bg);
-      padding: 16px;
+      min-height:100vh;
+      padding: 18px;
+    }
+
+    .app{
+      width: min(1100px, 100%);
+      margin: 0 auto;
     }
 
     header{
-      position: sticky; top:0; z-index: 10;
-      background: linear-gradient(135deg, #00264d, #004080);
-      color: #fff;
-      padding: 16px;
-      border-radius: 16px;
-      box-shadow: 0 10px 25px rgba(0,0,0,.15);
-      text-align:center;
-      font-weight: 800;
-      font-size: 18px;
-      letter-spacing: .3px;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      margin-bottom: 18px;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
     }
 
-    .day{ margin: 18px 0; }
-    .day-title{
-      background: var(--blau);
+    .hero{
+      position: relative;
+      overflow: hidden;
+      border-radius: 24px;
+      padding: 20px 18px;
       color: #fff;
-      padding: 9px 12px;
-      border-radius: 12px;
-      font-weight: 700;
-      box-shadow: 0 6px 16px var(--ring);
+      background:
+        linear-gradient(135deg, rgba(0,38,77,.96), rgba(0,64,128,.92)),
+        linear-gradient(135deg, #00264d, #004080);
+      box-shadow: 0 16px 35px rgba(0,0,0,.16);
+      border: 1px solid rgba(255,255,255,.10);
+      text-align: center;
+    }
+
+    .hero::before{
+      content:"";
+      position:absolute;
+      inset:auto -60px -60px auto;
+      width:180px;
+      height:180px;
+      border-radius:50%;
+      background: radial-gradient(circle, rgba(255,255,255,.12), transparent 70%);
+      pointer-events:none;
+    }
+
+    .hero::after{
+      content:"⚽";
+      position:absolute;
+      right:16px;
+      bottom:10px;
+      font-size:56px;
+      opacity:.10;
+      pointer-events:none;
+    }
+
+    .hero-title{
+      margin:0;
+      font-size: clamp(22px, 3vw, 30px);
+      font-weight: 900;
+      letter-spacing: .2px;
+    }
+
+    .hero-sub{
+      margin-top: 6px;
+      font-size: 13px;
+      color: rgba(255,255,255,.82);
+      font-weight: 500;
+    }
+
+    #spielplan.loading{
+      opacity:.85;
+    }
+
+    .day{
+      margin: 22px 0;
+    }
+
+    .day-title{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      width: fit-content;
+      max-width: 100%;
+      padding: 10px 14px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--blau), var(--blau-2));
+      color: #fff;
+      font-weight: 800;
+      box-shadow: 0 8px 20px var(--ring);
+      border: 1px solid rgba(255,255,255,.12);
+    }
+
+    .day-title::before{
+      content:"📅";
+      font-size: 16px;
+      line-height: 1;
     }
 
     .grid{
-      display: grid;
+      display:grid;
       grid-template-columns: 1fr;
-      gap: 12px;
-      margin-top: 10px;
+      gap: 14px;
+      margin-top: 12px;
     }
-    @media (min-width: 480px){
-      .grid{ grid-template-columns: 1fr 1fr; }
+
+    @media (min-width: 620px){
+      .grid{
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
     }
 
     .card{
       position: relative;
-      background: var(--card);
-      border-radius: 18px;
-      padding: 16px 70px 16px 16px;
-      box-shadow: 0 8px 20px rgba(0,0,0,.08);
-      border-left: 6px solid var(--rot);
-      border-right: 6px solid var(--rot);
-      transition: transform .15s ease, box-shadow .15s ease;
       overflow: hidden;
+      background: var(--card);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,.75);
+      border-radius: 22px;
+      padding: 16px 16px 16px 16px;
+      box-shadow: var(--shadow);
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+      isolation: isolate;
     }
+
     .card:hover{
       transform: translateY(-3px);
-      box-shadow: 0 14px 30px rgba(0,0,0,.15);
+      box-shadow: var(--shadow-hover);
+      border-color: rgba(0,51,102,.14);
     }
-    .card:active{ transform: translateY(-1px) scale(.995); }
 
-    /* Subtiles Fussball-Icon */
+    .card:active{
+      transform: translateY(-1px) scale(.996);
+    }
+
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:0 0 auto 0;
+      height: 5px;
+      background: linear-gradient(90deg, var(--rot), var(--blau));
+      z-index: 1;
+    }
+
     .card::after{
       content:"⚽";
       position:absolute;
-      bottom:10px;
-      right:15px;
-      font-size:40px;
-      opacity:.12;
+      right:14px;
+      bottom:8px;
+      font-size:50px;
+      opacity:.06;
       pointer-events:none;
+      z-index:0;
     }
 
-    /* Team-Hintergründe (leicht/hell) */
-    .card.team-fcr1{ background: linear-gradient(0deg, var(--tint-fcr1), var(--tint-fcr1)), var(--card); }
-    .card.team-fcr2{ background: linear-gradient(0deg, var(--tint-fcr2), var(--tint-fcr2)), var(--card); }
-    .card.team-damen{ background: linear-gradient(0deg, var(--tint-damen), var(--tint-damen)), var(--card); }
-    .card.team-50p{ background: linear-gradient(0deg, var(--tint-50p), var(--tint-50p)), var(--card); }
+    .card.team-fcr1{
+      background:
+        linear-gradient(0deg, var(--tint-fcr1), var(--tint-fcr1)),
+        var(--card-solid);
+    }
+    .card.team-fcr2{
+      background:
+        linear-gradient(0deg, var(--tint-fcr2), var(--tint-fcr2)),
+        var(--card-solid);
+    }
+    .card.team-damen{
+      background:
+        linear-gradient(0deg, var(--tint-damen), var(--tint-damen)),
+        var(--card-solid);
+    }
+    .card.team-50p{
+      background:
+        linear-gradient(0deg, var(--tint-50p), var(--tint-50p)),
+        var(--card-solid);
+    }
 
-    .top{ margin: 0 0 4px 0; padding: 0; }
+    .card-head{
+      position:relative;
+      z-index:2;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .time-wrap{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width:0;
+    }
+
+    .time-icon{
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background: linear-gradient(135deg, rgba(0,51,102,.10), rgba(0,51,102,.18));
+      color: var(--blau);
+      font-size: 16px;
+      flex: 0 0 auto;
+    }
+
+    .time-box{
+      min-width:0;
+    }
+
+    .time-label{
+      display:block;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: .3px;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
 
     .time{
       font-weight: 900;
-      font-size: 16px;
+      font-size: 18px;
       color: var(--blau);
-      white-space:nowrap;
-      margin: 0;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
+      line-height: 1.1;
+      white-space: nowrap;
     }
 
-    .right{
-      position: absolute;
-      top: 12px; right: 12px;
-      display: flex; flex-direction: column; align-items: flex-end; gap: 8px;
+    .actions{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-shrink:0;
+      margin-top:2px;
     }
 
     .badge{
       font-size: 12px;
       font-weight: 800;
-      padding: 5px 9px;
+      padding: 7px 10px;
       border-radius: 999px;
-      background: #e5e7eb;
-      color: #111827;
-      white-space:nowrap;
-      margin: 0;
-      box-shadow: 0 6px 14px rgba(0,0,0,.06);
+      background: #eef2f6;
+      color: #1f2937;
+      white-space: nowrap;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.04);
     }
-    .badge.cup{ background: #fee2e2; color:#991b1b; }
-    .badge.meister{ background: #e0e7ff; color:#1e3a8a; }
+
+    .badge.cup{
+      background: #fee2e2;
+      color:#991b1b;
+    }
+
+    .badge.meister{
+      background: #dbeafe;
+      color:#1e3a8a;
+    }
 
     .info-btn{
-      appearance: none;
-      border: none;
-      background: transparent;
-      padding: 0;
-      cursor: pointer;
-      line-height: 1;
-      transform: translateY(1px);
+      appearance:none;
+      border:none;
+      width:36px;
+      height:36px;
+      border-radius: 12px;
+      background: rgba(255,255,255,.85);
+      box-shadow: 0 4px 12px rgba(0,0,0,.08);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+      padding:0;
     }
-    .info-btn:hover{ transform: translateY(0px) scale(1.03); }
-    .info-icon{ width: 22px; height: 22px; display:block; }
+
+    .info-btn:hover{
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(0,0,0,.12);
+      background:#fff;
+    }
+
+    .info-icon{
+      width: 20px;
+      height: 20px;
+      display:block;
+    }
 
     .teams{
-      line-height: 1.4;
-      font-size: 15px;
-      margin-top: 8px;
+      position:relative;
+      z-index:2;
+      line-height:1.45;
     }
+
+    .team-home,
+    .team-away{
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: .1px;
+    }
+
+    .team-home{
+      color: var(--text);
+    }
+
+    .team-away{
+      color: var(--text);
+    }
+
     .vs{
-      display:block;
-      color: var(--muted);
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      margin: 7px 0;
       font-size: 12px;
-      margin: 4px 0;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .4px;
+    }
+
+    .vs::before,
+    .vs::after{
+      content:"";
+      width: 20px;
+      height: 1px;
+      background: rgba(102,112,133,.35);
+      display:inline-block;
     }
 
     .footer{
-      margin-top: 18px;
+      margin-top: 24px;
       text-align:center;
       color: var(--muted);
       font-size: 12px;
+      padding: 10px 12px;
     }
+
+    .footer code{
+      background: rgba(255,255,255,.7);
+      padding: 2px 6px;
+      border-radius: 8px;
+      border: 1px solid rgba(0,0,0,.05);
+    }
+
     .error{
       background: #fff1f1;
       color:#7f1d1d;
       border:1px solid #fecaca;
-      padding: 10px 12px;
-      border-radius: 12px;
+      padding: 12px 14px;
+      border-radius: 14px;
       margin-top: 12px;
+      box-shadow: 0 8px 20px rgba(127,29,29,.06);
     }
-    .loading{ opacity:.85 }
 
     /* Modal */
     .modal-backdrop{
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,.35);
+      position: fixed;
+      inset: 0;
+      background: rgba(2,6,23,.48);
       display: none;
-      align-items: center; justify-content: center;
-      padding: 16px;
-      z-index: 50;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      z-index: 60;
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
     }
+
     .modal{
-      background: #fff;
-      border-radius: 16px;
-      padding: 16px;
+      background: rgba(255,255,255,.97);
+      border-radius: 22px;
+      padding: 18px;
       width: 100%;
-      max-width: 520px;
-      box-shadow: 0 20px 60px rgba(0,0,0,.2);
-      border-top: 6px solid var(--rot);
+      max-width: 560px;
+      box-shadow: 0 24px 60px rgba(0,0,0,.22);
+      border: 1px solid rgba(255,255,255,.7);
+      position: relative;
+      overflow:hidden;
     }
-    .modal-header{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom: 8px; }
-    .modal-title{ font-weight: 900; }
-    .modal-close{ appearance: none; border: none; background: transparent; font-size: 22px; line-height: 1; cursor: pointer; color: var(--muted); }
-    .modal-body{ white-space: pre-wrap; line-height: 1.45; }
-    .show{ display: flex; }
+
+    .modal::before{
+      content:"";
+      position:absolute;
+      inset:0 0 auto 0;
+      height: 6px;
+      background: linear-gradient(90deg, var(--rot), var(--blau));
+    }
+
+    .modal-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom: 10px;
+      padding-top: 4px;
+    }
+
+    .modal-title{
+      font-weight: 900;
+      font-size: 18px;
+    }
+
+    .modal-close{
+      appearance:none;
+      border:none;
+      background: #f3f4f6;
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      font-size: 24px;
+      line-height: 1;
+      cursor:pointer;
+      color: var(--muted);
+    }
+
+    .modal-body{
+      white-space: pre-wrap;
+      line-height: 1.55;
+      color: var(--text);
+    }
+
+    .show{
+      display:flex;
+    }
   </style>
 </head>
 <body>
-  <header>📅 Heimspiele FC Rheineck</header>
-  <div id="spielplan" class="loading">Wird geladen…</div>
-  <div class="footer">Datenquelle: <code>spiele.csv</code> (Spalte <code>Informationen</code> optional).</div>
+  <div class="app">
+    <header>
+      <div class="hero">
+        <h1 class="hero-title">Heimspiele FC Rheineck</h1>
+        <div class="hero-sub">Alle kommenden Heimspiele auf einen Blick</div>
+      </div>
+    </header>
+
+    <div id="spielplan" class="loading">Wird geladen…</div>
+    <div class="footer">Datenquelle: <code>spiele.csv</code> (Spalte <code>Informationen</code> optional).</div>
+  </div>
 
   <!-- Modal -->
   <div id="modalBackdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
@@ -249,7 +524,6 @@
     }
 
     function toDateTime(datum, zeit){
-      // datum: dd.mm.yyyy, zeit: hh:mm
       const [dd,mm,yy] = (datum||"").split(".").map(Number);
       const [hh,mi] = (zeit||"00:00").split(":").map(Number);
       if (!dd || !mm || !yy) return null;
@@ -258,7 +532,7 @@
 
     function isFutureOrNow(row){
       const dt = toDateTime(row.datum, row.zeit);
-      if (!dt) return false;         // wenn Datum kaputt ist, lieber nicht anzeigen
+      if (!dt) return false;
       return dt.getTime() >= Date.now();
     }
 
@@ -287,7 +561,6 @@
     }
 
     function cardTeamClass(heimteam){
-      // exakt nach deinen Vorgaben (Spalte E = Heimteam)
       const t = (heimteam || "").trim();
       if (t === "FC Rheineck 1") return "team-fcr1";
       if (t === "FC Rheineck 2") return "team-fcr2";
@@ -298,14 +571,13 @@
 
     function svgInfo(){
       return `<svg class="info-icon" viewBox="0 0 24 24" aria-hidden="true">
-        <circle cx="12" cy="12" r="11" fill="none" stroke="var(--rot)" stroke-width="2"/>
-        <line x1="12" y1="10" x2="12" y2="17" stroke="var(--rot)" stroke-width="2" stroke-linecap="round"/>
-        <circle cx="12" cy="7" r="1.6" fill="var(--rot)"/>
+        <circle cx="12" cy="12" r="10" fill="none" stroke="var(--rot)" stroke-width="2"/>
+        <line x1="12" y1="10" x2="12" y2="16.5" stroke="var(--rot)" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="12" cy="7.2" r="1.5" fill="var(--rot)"/>
       </svg>`;
     }
 
     function render(rows){
-      // 1) Vergangene Spiele rausfiltern
       const upcoming = rows.filter(isFutureOrNow);
 
       if (!upcoming.length){
@@ -335,25 +607,32 @@
           const teamCls = cardTeamClass(s.heim);
 
           html += `<article class="card ${teamCls}" aria-label="Spiel ${s.heim} gegen ${s.gast} am ${d} um ${s.zeit}">
-            <div class="top">
-              <div class="time">🕒 ${s.zeit} Uhr</div>
-            </div>
+            <div class="card-head">
+              <div class="time-wrap">
+                <div class="time-icon">🕒</div>
+                <div class="time-box">
+                  <span class="time-label">Anpfiff</span>
+                  <div class="time">${s.zeit} Uhr</div>
+                </div>
+              </div>
 
-            <div class="right">
-              <span class="${badgeClass(s.typ)}">${s.typ || "Spiel"}</span>
-              ${hasInfo ? `<button class="info-btn" title="Info anzeigen" data-info="${s.info.replace(/"/g,'&quot;')}">${svgInfo()}</button>` : ``}
+              <div class="actions">
+                <span class="${badgeClass(s.typ)}">${s.typ || "Spiel"}</span>
+                ${hasInfo ? `<button class="info-btn" title="Info anzeigen" data-info="${s.info.replace(/"/g,'&quot;')}">${svgInfo()}</button>` : ``}
+              </div>
             </div>
 
             <div class="teams">
-              <div><strong>${s.heim}</strong></div>
-              <span class="vs">gegen</span>
-              <div><strong>${s.gast}</strong></div>
+              <div class="team-home">${s.heim}</div>
+              <div class="vs">gegen</div>
+              <div class="team-away">${s.gast}</div>
             </div>
           </article>`;
         }
 
         html += `</div></section>`;
       }
+
       return html;
     }
 
@@ -381,7 +660,10 @@
     }
 
     fetch(CSV_URL, {cache:"no-store"})
-      .then(r => { if(!r.ok) throw new Error("CSV nicht gefunden ("+r.status+")"); return r.text(); })
+      .then(r => {
+        if(!r.ok) throw new Error("CSV nicht gefunden ("+r.status+")");
+        return r.text();
+      })
       .then(txt => {
         const rows = parseCsv(txt);
         document.getElementById("spielplan").classList.remove("loading");
@@ -390,7 +672,7 @@
       })
       .catch(err => {
         document.getElementById("spielplan").classList.remove("loading");
-        document.getElementById("spielplan").innerHTML = '<div class="error">Fehler beim Laden: '+err.message+'</div>';
+        document.getElementById("spielplan").innerHTML = '<div class="error">Fehler beim Laden: ' + err.message + '</div>';
       });
   </script>
 </body>
