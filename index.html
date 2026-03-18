@@ -61,6 +61,7 @@
 
     .hero{
       position: relative;
+      margin-bottom: 16px;
       overflow: hidden;
       border-radius: 28px;
       padding: 18px 18px 16px;
@@ -476,7 +477,18 @@
     .show{
       display:flex;
     }
+
+    @media (max-width: 480px){
+      .hero-title{
+        line-height: 1.1;
+      }
+
+      .hero-title span{
+        display:block;
+      }
+    }
   </style>
+
 </head>
 <body>
   <div class="app">
@@ -485,7 +497,10 @@
         <div class="hero-top">
           <img src="logo-fcr.png" alt="FC Rheineck Logo" class="hero-logo">
           <div class="hero-text">
-            <h1 class="hero-title">Heimspiele FC Rheineck</h1>
+            <h1 class="hero-title">
+            Heimspiele
+            <span>FC Rheineck</span>
+            </h1>
             <div class="hero-sub">Alle kommenden Heimspiele auf einen Blick</div>
           </div>
         </div>
