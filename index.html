@@ -224,6 +224,11 @@
       gap:5px;
     }
 
+    .day-weather.pending{
+      opacity:.72;
+      font-weight:600;
+    }
+
     .grid{
       display:grid;
       grid-template-columns: 1fr;
@@ -702,6 +707,7 @@
             if (!Number.isFinite(temp) || !Number.isFinite(rain)) return;
 
             el.textContent = `${weatherIcon(code)} ${temp} °C · ${rain} % Regen`;
+            el.classList.remove("pending");
             el.classList.add("visible");
           });
         })
@@ -741,7 +747,10 @@
         html += `<section class="day">
           <div class="day-title">
             <div class="day-title-main">${w}, ${d}</div>
-            <div class="day-count">${gameCount} ${gameCount === 1 ? "Spiel" : "Spiele"}</div>
+            <div class="day-title-right">
+              <div class="day-weather visible pending" data-date="${isoDate(d)}">🌦️ Wetter folgt</div>
+              <div class="day-count">${gameCount} ${gameCount === 1 ? "Spiel" : "Spiele"}</div>
+            </div>
           </div>
           <div class="grid">`;
 
