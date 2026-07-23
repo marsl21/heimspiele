@@ -156,38 +156,60 @@
     }
 
     .day{
-      margin: 18px 0 22px;
+      margin: 20px 0 26px;
+      overflow: hidden;
+      border-radius: 24px;
+      background: rgba(255,255,255,.58);
+      border: 1px solid rgba(15,23,42,.06);
+      box-shadow: var(--shadow-soft);
     }
 
     .day-title{
-      display:inline-flex;
+      display:flex;
       align-items:center;
-      gap:8px;
-      max-width: 100%;
-      padding: 8px 13px;
-      border-radius: 999px;
-      background: #ffffff;
-      color: var(--blau-dunkel);
-      border: 1px solid rgba(13,63,138,.08);
-      font-weight: 700;
-      font-size: 13px;
-      box-shadow: 0 4px 12px rgba(15,23,42,.04);
+      justify-content:space-between;
+      gap:12px;
+      width:100%;
+      padding: 13px 17px;
+      background: linear-gradient(100deg, var(--blau) 0%, #5d367e 55%, var(--rot) 100%);
+      color:#fff;
+      font-weight: 800;
+      font-size: 15px;
+      letter-spacing: -.01em;
     }
 
-    .day-title::before{
+    .day-title-main{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width:0;
+    }
+
+    .day-title-main::before{
       content:"";
-      width:8px;
-      height:8px;
+      width:9px;
+      height:9px;
       border-radius:50%;
-      background: linear-gradient(135deg, var(--blau), var(--rot));
-      flex: 0 0 auto;
+      background:#fff;
+      box-shadow: 0 0 0 5px rgba(255,255,255,.15);
+      flex:0 0 auto;
+    }
+
+    .day-count{
+      padding:5px 9px;
+      border-radius:999px;
+      background:rgba(255,255,255,.16);
+      color:rgba(255,255,255,.92);
+      font-size:11px;
+      font-weight:700;
+      white-space:nowrap;
     }
 
     .grid{
       display:grid;
       grid-template-columns: 1fr;
       gap: 12px;
-      margin-top: 12px;
+      padding: 14px;
     }
 
     @media (min-width: 720px){
@@ -211,15 +233,6 @@
       transform: translateY(-2px);
       box-shadow: var(--shadow-card-hover);
       border-color: rgba(15,23,42,.08);
-    }
-
-    .card::before{
-      content:"";
-      position:absolute;
-      inset:0 0 auto 0;
-      height: 4px;
-      background: linear-gradient(90deg, var(--blau) 0%, var(--rot) 100%);
-      opacity:.95;
     }
 
     .card.team-fcr1{
@@ -639,8 +652,12 @@
         const [dd,mm,yy] = d.split(".").map(Number);
         const w = WTAG[new Date(yy,mm-1,dd).getDay()];
 
+        const gameCount = byDate[d].length;
         html += `<section class="day">
-          <div class="day-title">${w}, ${d}</div>
+          <div class="day-title">
+            <div class="day-title-main">${w}, ${d}</div>
+            <div class="day-count">${gameCount} ${gameCount === 1 ? "Spiel" : "Spiele"}</div>
+          </div>
           <div class="grid">`;
 
         for (const s of byDate[d]){
