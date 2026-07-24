@@ -701,10 +701,16 @@
             const el = document.querySelector(`.day-weather[data-date="${date}"]`);
             if (!el) return;
 
-            const code = Number(daily.weather_code?.[i]);
-            const temp = Math.round(Number(daily.temperature_2m_max?.[i]));
-            const rain = Math.round(Number(daily.precipitation_probability_max?.[i]));
-            if (!Number.isFinite(temp) || !Number.isFinite(rain)) return;
+            const rawCode = daily.weather_code?.[i];
+            const rawTemp = daily.temperature_2m_max?.[i];
+            const rawRain = daily.precipitation_probability_max?.[i];
+
+            if (rawCode == null || rawTemp == null || rawRain == null) return;
+
+            const code = Number(rawCode);
+            const temp = Math.round(Number(rawTemp));
+            const rain = Math.round(Number(rawRain));
+            if (!Number.isFinite(code) || !Number.isFinite(temp) || !Number.isFinite(rain)) return;
 
             el.textContent = `${weatherIcon(code)} ${temp} °C · ${rain} % Regen`;
             el.classList.remove("pending");
